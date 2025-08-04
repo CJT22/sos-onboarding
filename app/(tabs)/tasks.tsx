@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   View,
   Text,
@@ -7,8 +8,11 @@ import {
 } from "react-native";
 import { useAtomValue } from "jotai";
 import { userAtom } from "../../store/auth";
+// keep in mind: useCreateTask is not included in exercise 6
 import { useTasks, useUpdateTask, useCreateTask } from "../../hooks/useTasks";
 import { ApiTask } from "../../services/api";
+import TaskModal from "../../components/TaskModal";
+import FloatingActionButton from "../../components/FloatingActionButton";
 
 const categories = [
   { id: "all", label: "All", color: "bg-gray-500" },
@@ -19,9 +23,12 @@ const categories = [
 ];
 
 export default function TasksScreen() {
+  const [modalVisible, setModalVisible] = useState(false);
   const user = useAtomValue(userAtom);
   const { data: tasks = [], isLoading, error } = useTasks(user?.id || "");
   const updateTaskMutation = useUpdateTask();
+
+  // may be removed if adjustments are made
   const createTaskMutation = useCreateTask();
 
   const toggleTask = (task: ApiTask) => {
@@ -158,6 +165,13 @@ export default function TasksScreen() {
           />
         )}
       </View>
+
+      <FloatingActionButton onPress={() => setModalVisible(true)} />
+
+      <TaskModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+      />
     </View>
   );
 }
