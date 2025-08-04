@@ -1,13 +1,14 @@
-import { View, Text, FlatList, Pressable } from "react-native";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
-  filteredTasksAtom,
-  selectedCategoryAtom,
-  toggleTaskAtom,
-  addTaskAtom,
-  Task,
-} from "../../store/tasks";
-import { Stack } from "expo-router";
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { useAtomValue } from "jotai";
+import { userAtom } from "../../store/auth";
+import { useTasks, useUpdateTask, useCreateTask } from "../../hooks/useTasks";
+import { ApiTask } from "../../services/api";
 
 const categories = [
   { id: "all", label: "All", color: "bg-gray-500" },
@@ -18,22 +19,50 @@ const categories = [
 ];
 
 export default function TasksScreen() {
-  const tasks = useAtomValue(filteredTasksAtom);
-  const [selectedCategory, setSelectedCategory] = useAtom(selectedCategoryAtom);
-  const toggleTask = useSetAtom(toggleTaskAtom);
-  const addTask = useSetAtom(addTaskAtom);
+  const user = useAtomValue(userAtom);
+  const { data: tasks = [], isLoading, error } = useTasks(user?.id || "");
+  const updateTaskMutation = useUpdateTask();
+  const createTaskMutation = useCreateTask();
 
-  const addSampleTask = () => {
-    addTask({
-      title: "Sample Task",
-      description: "This is a sample task",
-      completed: false,
-      category: "work",
-      priority: "medium",
+  const toggleTask = (task: ApiTask) => {
+    updateTaskMutation.mutate({
+      taskId: task.id,
+      updates: { completed: !task.completed },
     });
   };
 
-  const renderTask = ({ item }: { item: Task }) => (
+  const addSampleTask = () => {
+    if (!user) return;
+
+    createTaskMutation.mutate({
+      title: "New Task from Server",
+      description: "This task is created via API",
+      completed: false,
+      category: "work",
+      priority: "medium",
+      userId: user.id,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="text-gray-600 mt-4">Loading tasks...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <Text className="text-red-600 text-lg">Error loading tasks</Text>
+        <Text className="text-gray-600">{error.message}</Text>
+      </View>
+    );
+  }
+
+  const renderTask = ({ item }: { item: ApiTask }) => (
     <View className="bg-white p-4 mb-3 rounded-lg shadow-sm border border-gray-100">
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
@@ -82,10 +111,11 @@ export default function TasksScreen() {
           </View>
         </View>
         <Pressable
-          onPress={() => toggleTask(item.id)}
+          onPress={() => toggleTask(item)}
+          disabled={updateTaskMutation.isPending}
           className={`w-6 h-6 rounded-full border-2 ${
             item.completed ? "bg-green-500 border-green-500" : "border-gray-300"
-          }`}
+          } ${updateTaskMutation.isPending ? "opacity-50" : ""}`}
         >
           {item.completed && (
             <Text className="text-white text-center text-xs leading-5">✓</Text>
@@ -97,46 +127,26 @@ export default function TasksScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
-      <Stack.Screen options={{ title: "Tasks" }} />
-      {/* Category Filter */}
       <View className="p-4">
         <Text className="text-xl font-bold text-gray-900 mb-4">My Tasks</Text>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={categories}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => setSelectedCategory(item.id)}
-              className={`px-4 py-2 rounded-full mr-3 ${
-                selectedCategory === item.id
-                  ? "bg-primary-500"
-                  : "bg-white border border-gray-200"
-              }`}
-            >
-              <Text
-                className={`font-medium ${
-                  selectedCategory === item.id ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {item.label}
-              </Text>
-            </Pressable>
-          )}
-        />
+        <Text className="text-gray-600 mb-4">
+          {tasks.length} tasks • {tasks.filter((t) => t.completed).length}{" "}
+          completed
+        </Text>
       </View>
 
-      {/* Tasks List */}
       <View className="flex-1 px-4">
         {tasks.length === 0 ? (
           <View className="flex-1 justify-center items-center">
             <Text className="text-gray-500 text-lg mb-4">No tasks yet</Text>
             <Pressable
               onPress={addSampleTask}
-              className="bg-primary-500 px-6 py-3 rounded-lg"
+              disabled={createTaskMutation.isPending}
+              className="bg-primary-500 px-6 py-3 rounded-lg disabled:opacity-50"
             >
-              <Text className="text-white font-semibold">Add Sample Task</Text>
+              <Text className="text-white font-semibold">
+                {createTaskMutation.isPending ? "Adding..." : "Add Sample Task"}
+              </Text>
             </Pressable>
           </View>
         ) : (
