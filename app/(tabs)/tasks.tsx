@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useAtomValue } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 import { userAtom } from "../../store/auth";
 // keep in mind: useCreateTask is not included in exercise 6
 import {
@@ -20,6 +20,7 @@ import { ApiTask } from "../../services/api";
 import TaskModal from "../../components/TaskModal";
 import FloatingActionButton from "../../components/FloatingActionButton";
 import { Link, router, useRouter } from "expo-router";
+import { selectedCategoryAtom, filteredTasksAtom } from "../../store/tasks";
 
 const categories = [
   { id: "all", label: "All", color: "bg-gray-500" },
@@ -29,13 +30,15 @@ const categories = [
   { id: "health", label: "Health", color: "bg-red-500" },
 ];
 
+const priorities = { high: 1, medium: 2, low: 3 };
+
 export default function TasksScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const user = useAtomValue(userAtom);
   const { data: tasks = [], isLoading, error } = useTasks(user?.id || "");
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
-  // const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useAtom(selectedCategoryAtom);
 
   // may be removed if adjustments are made
   const createTaskMutation = useCreateTask();
@@ -47,11 +50,18 @@ export default function TasksScreen() {
     });
   };
 
-  // const deleteTask = (task: ApiTask) => {
-  //   deleteTaskMutation.mutate(task.id);
-  //   console.log("deleted " + task.id);
-  //   console.log(tasks);
-  // };
+  const addSampleTask = () => {
+    if (!user) return;
+
+    createTaskMutation.mutate({
+      title: "New Task from Server",
+      description: "This task is created via API",
+      completed: false,
+      category: "work",
+      priority: "medium",
+      userId: user.id,
+    });
+  };
 
   const deleteTask = (taskId: string) => {
     const index = tasks.findIndex((task) => task.id === taskId);
@@ -80,19 +90,6 @@ export default function TasksScreen() {
     );
   };
 
-  const addSampleTask = () => {
-    if (!user) return;
-
-    createTaskMutation.mutate({
-      title: "New Task from Server",
-      description: "This task is created via API",
-      completed: false,
-      category: "work",
-      priority: "medium",
-      userId: user.id,
-    });
-  };
-
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -114,7 +111,7 @@ export default function TasksScreen() {
   const renderTask = ({ item }: { item: ApiTask }) => (
     <View className="bg-white p-4 mb-3 rounded-lg shadow-sm border border-gray-100">
       <View className="flex-row items-center justify-between">
-        <View className="">
+        <View className="flex-1">
           <Text
             className={`text-lg font-semibold ${
               item.completed ? "text-gray-500 line-through" : "text-gray-900"
@@ -159,7 +156,7 @@ export default function TasksScreen() {
             </View>
           </View>
         </View>
-        <Pressable className="ml-3" onPress={() => deleteTask(item.id)}>
+        <Pressable className="mr-5" onPress={() => deleteTask(item.id)}>
           <Text className="text-red-500">Delete Task</Text>
         </Pressable>
         <Pressable
@@ -182,9 +179,35 @@ export default function TasksScreen() {
       <View className="p-4">
         <Text className="text-xl font-bold text-gray-900 mb-4">My Tasks</Text>
         <Text className="text-gray-600 mb-4">
-          {tasks.length} {tasks.length === 1 ? "task" : "tasks"} •{" "}
+          {tasks.length} {tasks.length === 1 ? "task" : "tasks"} in total •{" "}
           {tasks.filter((t) => t.completed).length} completed
         </Text>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={categories}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => {
+                setSelectedCategory(item.id);
+              }}
+              className={`px-4 py-2 rounded-full mr-3 ${
+                selectedCategory === item.id
+                  ? "bg-primary-500"
+                  : "bg-white border border-gray-200"
+              }`}
+            >
+              <Text
+                className={`font-medium ${
+                  selectedCategory === item.id ? "text-white" : "text-gray-700"
+                }`}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          )}
+        />
       </View>
 
       <View className="flex-1 px-4">
@@ -203,9 +226,25 @@ export default function TasksScreen() {
               </Text>
             </Pressable>
           </View>
+        ) : selectedCategory === "all" ? (
+          <FlatList
+            data={tasks.sort(function (a, b) {
+              return priorities[a.priority] - priorities[b.priority];
+            })}
+            keyExtractor={(item) => item.id}
+            renderItem={renderTask}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : tasks.filter((task) => task.category === selectedCategory)
+            .length === 0 ? (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-gray-500 text-lg mb-4">
+              No {selectedCategory} tasks yet... good job!
+            </Text>
+          </View>
         ) : (
           <FlatList
-            data={tasks}
+            data={tasks.filter((task) => task.category === selectedCategory)}
             keyExtractor={(item) => item.id}
             renderItem={renderTask}
             showsVerticalScrollIndicator={false}
