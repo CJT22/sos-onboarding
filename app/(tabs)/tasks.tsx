@@ -13,6 +13,7 @@ import { useTasks, useUpdateTask, useCreateTask } from "../../hooks/useTasks";
 import { ApiTask } from "../../services/api";
 import TaskModal from "../../components/TaskModal";
 import FloatingActionButton from "../../components/FloatingActionButton";
+import { Link } from "expo-router";
 
 const categories = [
   { id: "all", label: "All", color: "bg-gray-500" },
@@ -166,12 +167,14 @@ export default function TasksScreen() {
         )}
       </View>
 
-      <FloatingActionButton onPress={() => setModalVisible(true)} />
+      <Link href="/create" asChild>
+        <FloatingActionButton onPress={() => setModalVisible(true)} />
+      </Link>
 
-      <TaskModal
+      {/* <TaskModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-      />
+      /> */}
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import { Text } from "react-native";
 
 export default function TabLayout() {
@@ -15,6 +15,7 @@ export default function TabLayout() {
         },
       }}
     >
+      <Tabs.Screen name="create" options={{ href: null, headerShown: false }} />
       <Tabs.Screen
         name="tasks"
         options={{
