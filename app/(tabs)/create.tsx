@@ -81,7 +81,7 @@ export default function TaskModal({ visible }: TaskModalProps) {
   };
 
   return (
-    <View className="flex-1 m-4 bg-gray-50">
+    <View className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white p-6 shadow-sm">
         <View className="flex-row items-center justify-between">

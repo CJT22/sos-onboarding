@@ -5,7 +5,7 @@ import { themeAtom } from "../../store/theme";
 
 export default function SettingsScreen() {
   const [theme, setTheme] = useAtom(themeAtom);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [syncEnabled, setSyncEnabled] = useState(true);
 
   return (
@@ -59,7 +59,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* Sync Section */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6">
+        {/* <View className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <Text className="text-lg font-semibold text-gray-900 mb-4">
             Data & Sync
           </Text>
@@ -73,7 +73,7 @@ export default function SettingsScreen() {
             </View>
             <Switch value={syncEnabled} onValueChange={setSyncEnabled} />
           </View>
-        </View>
+        </View> */}
 
         {/* About Section */}
         <View className="bg-white rounded-xl p-6 shadow-sm">
@@ -84,12 +84,12 @@ export default function SettingsScreen() {
           <View className="space-y-3">
             <View>
               <Text className="text-gray-700 font-medium">Version</Text>
-              <Text className="text-gray-500">1.0.0</Text>
+              <Text className="text-gray-500">0.1.4</Text>
             </View>
 
             <View>
               <Text className="text-gray-700 font-medium">Build</Text>
-              <Text className="text-gray-500">2025.01.01</Text>
+              <Text className="text-gray-500">2025.08.05</Text>
             </View>
           </View>
         </View>

@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     <View className="flex-1 bg-gray-50">
       <View className="bg-white p-6 shadow-sm">
         <Text className="text-2xl font-bold text-gray-900 mb-2">Profile</Text>
-        <Text className="text-gray-600">Manage your account settings</Text>
+        <Text className="text-gray-600">Account Details</Text>
       </View>
 
       <View className="p-6">
@@ -78,7 +78,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6">
+        {/* <View className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <Text className="text-lg font-semibold text-gray-900 mb-4">
             Account Actions
           </Text>
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
             <Text className="text-gray-700 flex-1">Privacy Settings</Text>
             <Text className="text-gray-400">›</Text>
           </Pressable>
-        </View>
+        </View> */}
 
         <Pressable
           onPress={handleLogout}

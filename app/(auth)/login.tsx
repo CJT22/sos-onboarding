@@ -26,7 +26,7 @@ export default function LoginScreen() {
     <View className="flex-1 bg-gray-50 justify-center p-6">
       <View className="bg-white rounded-xl p-8 shadow-lg">
         <Text className="text-3xl font-bold text-gray-900 text-center mb-8">
-          Welcome Back
+          Sign In
         </Text>
 
         <View className="mb-4">
@@ -58,7 +58,7 @@ export default function LoginScreen() {
           className="bg-primary-500 rounded-lg py-4 mb-4 disabled:opacity-50"
         >
           <Text className="text-white text-center font-semibold text-lg">
-            {loginMutation.isPending ? "Signing In..." : "Sign In"}
+            {loginMutation.isPending ? "Signing In..." : "Enter Credentials"}
           </Text>
         </Pressable>
 

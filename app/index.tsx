@@ -13,18 +13,18 @@ export default function HomeScreen() {
           Organize your life, one task at a time
         </Text>
 
-        <Link href="/(tabs)/tasks" asChild>
+        <Link href="/(auth)/login" asChild>
           <Pressable className="bg-primary-500 rounded-lg py-4 mb-4">
             <Text className="text-white text-center font-semibold text-lg">
-              Get Started
+              Sign In
             </Text>
           </Pressable>
         </Link>
 
-        <Link href="/(auth)/login" asChild>
+        <Link href="/(auth)/register" asChild>
           <Pressable className="border border-primary-500 rounded-lg py-4">
             <Text className="text-primary-500 text-center font-semibold text-lg">
-              Sign In
+              Create Account
             </Text>
           </Pressable>
         </Link>
