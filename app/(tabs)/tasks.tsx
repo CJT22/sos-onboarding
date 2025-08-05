@@ -5,15 +5,21 @@ import {
   FlatList,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useAtomValue } from "jotai";
 import { userAtom } from "../../store/auth";
 // keep in mind: useCreateTask is not included in exercise 6
-import { useTasks, useUpdateTask, useCreateTask } from "../../hooks/useTasks";
+import {
+  useTasks,
+  useUpdateTask,
+  useCreateTask,
+  useDeleteTask,
+} from "../../hooks/useTasks";
 import { ApiTask } from "../../services/api";
 import TaskModal from "../../components/TaskModal";
 import FloatingActionButton from "../../components/FloatingActionButton";
-import { Link } from "expo-router";
+import { Link, router, useRouter } from "expo-router";
 
 const categories = [
   { id: "all", label: "All", color: "bg-gray-500" },
@@ -28,6 +34,8 @@ export default function TasksScreen() {
   const user = useAtomValue(userAtom);
   const { data: tasks = [], isLoading, error } = useTasks(user?.id || "");
   const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
+  // const router = useRouter();
 
   // may be removed if adjustments are made
   const createTaskMutation = useCreateTask();
@@ -37,6 +45,39 @@ export default function TasksScreen() {
       taskId: task.id,
       updates: { completed: !task.completed },
     });
+  };
+
+  // const deleteTask = (task: ApiTask) => {
+  //   deleteTaskMutation.mutate(task.id);
+  //   console.log("deleted " + task.id);
+  //   console.log(tasks);
+  // };
+
+  const deleteTask = (taskId: string) => {
+    const index = tasks.findIndex((task) => task.id === taskId);
+
+    Alert.alert(
+      "Delete Task",
+      'You are about to delete the task:\n"' +
+        tasks[index].title +
+        '"\n\nAre you sure about this?',
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            if (index !== -1) {
+              tasks.splice(index, 1);
+            }
+
+            router.replace("/tasks");
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   const addSampleTask = () => {
@@ -73,7 +114,7 @@ export default function TasksScreen() {
   const renderTask = ({ item }: { item: ApiTask }) => (
     <View className="bg-white p-4 mb-3 rounded-lg shadow-sm border border-gray-100">
       <View className="flex-row items-center justify-between">
-        <View className="flex-1">
+        <View className="">
           <Text
             className={`text-lg font-semibold ${
               item.completed ? "text-gray-500 line-through" : "text-gray-900"
@@ -118,6 +159,9 @@ export default function TasksScreen() {
             </View>
           </View>
         </View>
+        <Pressable className="ml-3" onPress={() => deleteTask(item.id)}>
+          <Text className="text-red-500">Delete Task</Text>
+        </Pressable>
         <Pressable
           onPress={() => toggleTask(item)}
           disabled={updateTaskMutation.isPending}
@@ -138,15 +182,17 @@ export default function TasksScreen() {
       <View className="p-4">
         <Text className="text-xl font-bold text-gray-900 mb-4">My Tasks</Text>
         <Text className="text-gray-600 mb-4">
-          {tasks.length} tasks • {tasks.filter((t) => t.completed).length}{" "}
-          completed
+          {tasks.length} {tasks.length === 1 ? "task" : "tasks"} •{" "}
+          {tasks.filter((t) => t.completed).length} completed
         </Text>
       </View>
 
       <View className="flex-1 px-4">
         {tasks.length === 0 ? (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-500 text-lg mb-4">No tasks yet</Text>
+            <Text className="text-gray-500 text-lg mb-4">
+              No tasks yet... good job!
+            </Text>
             <Pressable
               onPress={addSampleTask}
               disabled={createTaskMutation.isPending}

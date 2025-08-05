@@ -11,7 +11,7 @@ import {
 import { useCreateTask } from "../../hooks/useTasks";
 import { useAtomValue } from "jotai";
 import { userAtom } from "../../store/auth";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 interface TaskModalProps {
   visible: boolean;
@@ -72,6 +72,8 @@ export default function TaskModal({ visible }: TaskModalProps) {
       setDescription("");
       setCategory("work");
       setPriority("medium");
+
+      router.replace("/tasks");
     } catch (error) {
       console.warn(error);
       Alert.alert("Error", "Failed to create task. Please try again.");

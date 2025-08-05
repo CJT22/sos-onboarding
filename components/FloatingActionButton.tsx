@@ -37,7 +37,7 @@ export default function FloatingActionButton({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={animatedStyle}
-      className="absolute bottom-6 right-6 w-14 h-14 bg-primary-500 rounded-full shadow-lg justify-center items-center"
+      className="absolute top-6 right-6  w-14 h-14 bg-primary-500 rounded-full shadow-lg justify-center items-center"
     >
       <Text className="text-white text-2xl font-light">+</Text>
     </AnimatedPressable>
