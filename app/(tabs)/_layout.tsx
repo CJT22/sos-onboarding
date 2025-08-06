@@ -16,6 +16,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="create" options={{ href: null, headerShown: false }} />
+      <Tabs.Screen name="[id]" options={{ href: null, headerShown: false }} />
       <Tabs.Screen
         name="tasks"
         options={{

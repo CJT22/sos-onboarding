@@ -84,12 +84,12 @@ export default function SettingsScreen() {
           <View className="space-y-3">
             <View>
               <Text className="text-gray-700 font-medium">Version</Text>
-              <Text className="text-gray-500">0.1.4</Text>
+              <Text className="text-gray-500">0.1.5</Text>
             </View>
 
             <View>
               <Text className="text-gray-700 font-medium">Build</Text>
-              <Text className="text-gray-500">2025.08.05</Text>
+              <Text className="text-gray-500">2025.08.06</Text>
             </View>
           </View>
         </View>
